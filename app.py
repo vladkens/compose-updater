@@ -65,6 +65,14 @@ def cfg_list(c_cfg: dict, i_cfg: dict, key: str) -> list | None:
     return None if c_cfg[key] == i_cfg[key] else c_cfg[key]
 
 
+def remove_image(image: Image):
+    try:
+        client.images.remove(image.id)
+        logger.info(f"Removed outdated image {isid(image)}")
+    except Exception as e:
+        logger.error(f"Failed to remove outdated image {isid(image)}: {e}")
+
+
 def update_container(project: str, service: str):
     c = get_container(project, service)
     if not c:
@@ -117,6 +125,7 @@ def update_container(project: str, service: str):
     )
 
     logger.info(f"Container {c.name} restarted ({c.short_id})")
+    remove_image(now_image)
 
 
 @app.get("/health")
